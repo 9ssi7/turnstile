@@ -45,7 +45,7 @@ func (s *service) RandomUUID() string {
 }
 
 func (s *service) verify(ctx context.Context, token string, ip string, key string) (bool, error) {
-	c, cancel := context.WithTimeout(ctx, s.timeout)
+	_, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -70,7 +70,6 @@ func (s *service) verify(ctx context.Context, token string, ip string, key strin
 		return false, err
 	}
 	if success, ok := firstOutcome["success"].(bool); ok && success {
-		c.Done()
 		return true, nil
 	}
 	return false, nil
