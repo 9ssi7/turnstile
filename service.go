@@ -12,9 +12,10 @@ import (
 )
 
 type service struct {
-	timeout time.Duration
-	secret  string
-	url     string
+	timeout      time.Duration
+	secret       string
+	backupSecret string
+	url          string
 }
 
 func newService(config Config) Service {
@@ -22,18 +23,19 @@ func newService(config Config) Service {
 		config.Timeout = 10 * time.Second
 	}
 	return &service{
-		secret:  config.Secret,
-		timeout: config.Timeout,
-		url:     "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+		secret:       config.Secret,
+		backupSecret: config.BackupSecret,
+		timeout:      config.Timeout,
+		url:          "https://challenges.cloudflare.com/turnstile/v0/siteverify",
 	}
 }
 
 func (s *service) Verify(ctx context.Context, token string, ip string) (bool, error) {
-	return s.verify(ctx, token, ip, "")
+	return s.verify(ctx, s.secret, token, ip, "")
 }
 
 func (s *service) VerifyIdempotent(ctx context.Context, token string, ip string, key string) (bool, error) {
-	return s.verify(ctx, token, ip, key)
+	return s.verify(ctx, s.secret, token, ip, key)
 }
 
 func (s *service) RandomUUID() string {
@@ -44,12 +46,12 @@ func (s *service) RandomUUID() string {
 	return fmt.Sprintf("%x-%x-%x-%x-%x", uuid[0:4], uuid[4:6], uuid[6:8], uuid[8:10], uuid[10:])
 }
 
-func (s *service) verify(ctx context.Context, token string, ip string, key string) (bool, error) {
+func (s *service) verify(ctx context.Context, secret string, token string, ip string, key string) (bool, error) {
 	_, cancel := context.WithTimeout(ctx, s.timeout)
 	defer cancel()
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	_ = writer.WriteField("secret", s.secret)
+	_ = writer.WriteField("secret", secret)
 	_ = writer.WriteField("response", token)
 	_ = writer.WriteField("remoteip", ip)
 	if key != "" {
@@ -73,4 +75,12 @@ func (s *service) verify(ctx context.Context, token string, ip string, key strin
 		return true, nil
 	}
 	return false, nil
+}
+
+func (s *service) VerifyBackup(ctx context.Context, token string, ip string) (bool, error) {
+	return s.verify(ctx, s.backupSecret, token, ip, "")
+}
+
+func (s *service) VerifyBackupIdempotent(ctx context.Context, token string, ip string, key string) (bool, error) {
+	return s.verify(ctx, s.backupSecret, token, ip, key)
 }

@@ -11,6 +11,10 @@ type Config struct {
 	// This is required.
 	Secret string
 
+	// BackupSecret is the backup secret key used to verify the token.
+	// This is optional.
+	BackupSecret string
+
 	// Timeout is the timeout for the service.
 	// This is optional.
 	// Default: 10 seconds
@@ -34,6 +38,20 @@ type Service interface {
 	// It returns false if the token is invalid.
 	// It returns an error if there was an error verifying the token.
 	VerifyIdempotent(ctx context.Context, token string, ip string, key string) (bool, error)
+
+	// VerifyBackup is used to verify the token.
+	// It returns true if the token is valid.
+	// It returns false if the token is invalid.
+	// It returns an error if there was an error verifying the token.
+	VerifyBackup(ctx context.Context, token string, ip string) (bool, error)
+
+	// VerifyBackupIdempotent is used to verify the token.
+	// The key parameter is used to ensure idempotency.
+	// You may use the RandomUUID method to generate a random UUID.
+	// It returns true if the token is valid.
+	// It returns false if the token is invalid.
+	// It returns an error if there was an error verifying the token.
+	VerifyBackupIdempotent(ctx context.Context, token string, ip string, key string) (bool, error)
 
 	// RandomUUID is used to generate a random UUID.
 	// It returns a random UUID.
