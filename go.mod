@@ -1,4 +1,4 @@
-module github.com/ssibrahimbas/turnstile
+module github.com/9ssi7/turnstile
 
 go 1.20
 

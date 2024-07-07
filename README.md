@@ -5,12 +5,12 @@ Turnstile is a service that allows you to protect your web applications from abu
 ## Installation
 
 ```bash
-go get github.com/ssibrahimbas/turnstile
+go get github.com/9ssi7/turnstile
 ```
 
 ## Documentation
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/ssibrahimbas/turnstile.svg)](https://pkg.go.dev/github.com/ssibrahimbas/turnstile)
+[![Go Reference](https://pkg.go.dev/badge/github.com/9ssi7/turnstile.svg)](https://pkg.go.dev/github.com/9ssi7/turnstile)
 
 ## Usage
 
@@ -19,7 +19,7 @@ package main
 
 import (
     "context"
-    "github.com/ssibrahimbas/turnstile"
+    "github.com/9ssi7/turnstile"
 )
 
 func main() {
